@@ -16,3 +16,8 @@ python sync_previous_module.py previous-module-dir current-module-dir
 The files that will be synced are:
 
         minitorch/operators.py minitorch/module.py tests/test_module.py tests/test_operators.py project/run_manual.py
+
+
+P. S. При реализации функционала опирался на эти две лекции:
+https://www.youtube.com/watch?v=U7Pif_oZooA
+https://www.youtube.com/watch?v=wSt2STWSt2M
