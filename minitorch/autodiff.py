@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Any, Iterable, List, Tuple
 
 from typing_extensions import Protocol
+from collections import defaultdict
+
 
 # ## Task 1.1
 # Central Difference calculation
@@ -22,8 +24,14 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     Returns:
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
-    # TODO: Implement for Task 1.1.
-    raise NotImplementedError("Need to implement for Task 1.1")
+
+    vals_plus = list(vals)
+    vals_minus = list(vals)
+
+    vals_plus[arg] += epsilon
+    vals_minus[arg] -= epsilon
+
+    return (f(*vals_plus) - f(*vals_minus)) / (2 * epsilon)
 
 
 variable_count = 1
@@ -61,8 +69,20 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     Returns:
         Non-constant Variables in topological order starting from the right.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+    visited = set()
+    sorted_variables = []
+
+    def dfs(var: Variable):
+        if var.unique_id in visited:
+            return
+        visited.add(var.unique_id)
+        for parent in var.parents:
+            dfs(parent)
+        if not var.is_constant():
+            sorted_variables.append(var)
+
+    dfs(variable)
+    return reversed(sorted_variables)
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -76,8 +96,19 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError("Need to implement for Task 1.4")
+    sorted_vars = topological_sort(variable)
+
+    d_dict = defaultdict(float)
+    d_dict[variable.unique_id] = deriv
+
+    for var in sorted_vars:
+        d = d_dict[var.unique_id]
+
+        if not var.is_leaf():
+            for v, d_part in var.chain_rule(d):
+                d_dict[v.unique_id] += d_part
+        else:
+            var.accumulate_derivative(d)
 
 
 @dataclass
